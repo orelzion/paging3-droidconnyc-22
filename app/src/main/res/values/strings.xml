@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Droidcon NYC 22</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="patient_list_label">Patient List</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="patient_scan">patient scan</string>
+</resources>
