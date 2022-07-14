@@ -11,7 +11,8 @@ fun PatientRemote.toPatientEntity(withFilterId: String): PatientEntity {
         bookmarkCount = remoteModel.bookmarkCount,
         isBookmarked = remoteModel.isBookmarked,
         photoUrl = remoteModel.photoUrl,
-        filterId = withFilterId
+        filterId = withFilterId,
+        updatedAt = remoteModel.updatedAt
     )
 }
 
@@ -22,6 +23,7 @@ fun PatientEntity.toPatientRemote(): PatientRemote {
         name = patientEntity.name,
         bookmarkCount = patientEntity.bookmarkCount,
         isBookmarked = patientEntity.isBookmarked,
-        photoUrl = patientEntity.photoUrl
+        photoUrl = patientEntity.photoUrl,
+        updatedAt = patientEntity.updatedAt
     )
 }

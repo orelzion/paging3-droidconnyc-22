@@ -4,6 +4,7 @@ import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 
 @Database(entities = [PatientEntity::class], version = 1, exportSchema = false)
+@TypeConverters(Convertors::class)
 abstract class PatientDB: RoomDatabase() {
     abstract val patientDao: PatientDao
 }

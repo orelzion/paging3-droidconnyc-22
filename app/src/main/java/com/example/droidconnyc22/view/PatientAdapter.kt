@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.example.droidconnyc22.model.Patient
 
-class PatientAdapter(private val onBookmarkChecked: (patient: Patient, isChecked: Boolean) -> Unit) :
+class PatientAdapter(private val onBookmarkChecked: (patient: Patient) -> Unit) :
     ListAdapter<Patient, PatientViewHolder>(PatientDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
@@ -13,8 +13,8 @@ class PatientAdapter(private val onBookmarkChecked: (patient: Patient, isChecked
     }
 
     override fun onBindViewHolder(holder: PatientViewHolder, position: Int) {
-        holder.bind(getItem(position)) { isChecked ->
-            onBookmarkChecked(getItem(position), isChecked)
+        holder.bind(getItem(position)) {
+            onBookmarkChecked(getItem(position))
         }
     }
 }

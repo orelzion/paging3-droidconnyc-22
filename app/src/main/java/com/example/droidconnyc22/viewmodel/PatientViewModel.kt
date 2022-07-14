@@ -48,6 +48,37 @@ class PatientViewModel(
         }
     }
 
+    fun onUserTappedOnBookmark(ofPatient: Patient) {
+        viewModelScope.launch {
+            patientRepository
+                .toggleBookmark(ofPatient, toBookmark = ofPatient.isBookmarked.not())
+                .onSuccess {
+                    updatePatientInList(it)
+                }
+                .onFailure {
+                    //TODO Show a one time error
+                }
+        }
+    }
+
+    private fun updatePatientInList(patient: Patient) {
+        val updatedList = _viewState.value.patientList.map {
+            if (it.patientId == patient.patientId) {
+                it.copy(patient.isBookmarked)
+            } else {
+                it
+            }
+        }
+
+        _viewState.update {
+            PatientListUiState.Loaded(
+                updatedList,
+                tabs = it.tabs,
+                currentTabId = it.currentTabId!!
+            )
+        }
+    }
+
     private suspend fun updateStateWithSelectedTab(tabId: String) = withContext(Dispatchers.Main) {
         _viewState.update {
             it.copy(tabId)
