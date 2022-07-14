@@ -12,6 +12,7 @@ import com.example.droidconnyc22.model.Patient
 import com.example.droidconnyc22.model.TabData
 import com.example.droidconnyc22.viewmodel.PatientListUiState
 import com.example.droidconnyc22.viewmodel.PatientViewModel
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -43,6 +44,19 @@ class PatientListFragment : Fragment() {
         }
 
         viewBinding.patientList.adapter = patientAdapter
+
+        viewBinding.patientTabs.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                patientViewModel.onTabSelected(tab.position)
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
+
+        })
     }
 
     private fun updateUiBy(uiState: PatientListUiState) {
@@ -88,59 +102,12 @@ class PatientListFragment : Fragment() {
         return false
     }
 
-    private fun onBookmarkChanged(patient: Patient, isChecked: Boolean) {
-
+    private fun onBookmarkChanged(patient: Patient) {
+        patientViewModel.onUserTappedOnBookmark(ofPatient = patient)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-//    // TODO mock
-//    val mockTabs = listOf(
-//        TabData(id = "1", title = "LVO Suspected"),
-//        TabData(id = "2", title = "CTP Suspected")
-//    )
-//
-//    addTabs(mockTabs)
-//
-//    // TODO mock
-//    val mockPatients = listOf(
-//        PatientRemote(
-//            patientId = "1",
-//            name = "Orel Zion",
-//            bookmarkCount = 12,
-//            isBookmarked = false,
-//            photoUrl = "https://www.brainline.org/sites/default/files/slides/mri.jpg"
-//        ),
-//        PatientRemote(
-//            patientId = "2",
-//            name = "Sara Zion",
-//            bookmarkCount = 543,
-//            isBookmarked = true,
-//            photoUrl = null
-//        ),
-//        PatientRemote(
-//            patientId = "3",
-//            name = "Lorem Ipsum",
-//            bookmarkCount = 423,
-//            isBookmarked = false,
-//            photoUrl = "https://oryon.co.uk/app/uploads/2019/08/Brain-MRI-e1565353833878.jpg"
-//        ),
-//        PatientRemote(
-//            patientId = "4",
-//            name = "Soro teet Hugo",
-//            bookmarkCount = 756,
-//            isBookmarked = false,
-//            photoUrl = "https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2013/06/mri_brain_scan/12915330-1-eng-GB/MRI_brain_scan_pillars.jpg"
-//        ),
-//        PatientRemote(
-//            patientId = "5",
-//            name = "Ercha joit",
-//            bookmarkCount = 12,
-//            isBookmarked = false,
-//            photoUrl = "https://www.kenhub.com/thumbor/zoz_XVCq44UFroH2ds6eoOUvdtA=/fit-in/800x1600/filters:watermark(/images/logo_url.png,-10,-10,0):background_color(FFFFFF):format(jpeg)/images/library/13517/ff.jpg"
-//        )
-//    )
 }
