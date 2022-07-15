@@ -2,6 +2,7 @@ package com.example.droidconnyc22.model.db
 
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
+import com.example.droidconnyc22.model.Patient
 
 @Database(entities = [PatientEntity::class], version = 1, exportSchema = false)
 @TypeConverters(Convertors::class)
@@ -28,4 +29,20 @@ interface PatientDao {
 
     @Update
     fun update(patient: PatientEntity)
+
+    @Transaction
+    fun updatePatientById(toPatient: Patient) {
+        val patientId = toPatient.patientId
+
+        getPatientBy(patientId).forEach { patientEntity ->
+            val updatedEntity = patientEntity.copy(
+                name = toPatient.name,
+                bookmarkCount = toPatient.bookmarkCount,
+                isBookmarked = toPatient.isBookmarked,
+                photoUrl = toPatient.photoUrl
+            )
+
+            update(updatedEntity)
+        }
+    }
 }

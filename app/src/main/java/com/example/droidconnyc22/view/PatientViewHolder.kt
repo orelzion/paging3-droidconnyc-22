@@ -32,6 +32,7 @@ class PatientViewHolder(private val viewBinding: PatientViewHolderBinding) :
         }
         viewBinding.bookmarkCount.text = patient.bookmarkCount.toString()
         viewBinding.bookmarkCheckmark.apply {
+            setOnCheckedChangeListener(null)
             isChecked = patient.isBookmarked
             setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked != patient.isBookmarked) {

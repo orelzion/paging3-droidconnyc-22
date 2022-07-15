@@ -9,32 +9,32 @@ class PatientRepository(
     private val patientRemoteDataSource: PatientRemoteDataSource
 ) {
 
-    suspend fun fetchListFor(filterId: String, cleanFetch: Boolean = false): Result<List<Patient>> =
+    suspend fun fetchListFor(filter: PatientFilter, cleanFetch: Boolean = false): Result<List<Patient>> =
         kotlin.runCatching {
 
             val cachedList = if (cleanFetch) {
-                emptyList<Patient>().also { clearFilter(filterId) }
+                emptyList<Patient>().also { clearFilter(filter) }
             } else {
-                patientDbDataSource.getPatientListBy(filterId)
+                patientDbDataSource.getPatientListBy(filter)
             }
 
             return Result.success(
                 cachedList.ifEmpty {
-                    patientRemoteDataSource.getPatientListBy(filterId)
-                        .also { saveToLocal(it, filterId) }
+                    patientRemoteDataSource.getPatientListBy(filter)
+                        .also { saveToLocal(it, filter) }
                 }
             )
         }
 
-    private suspend fun saveToLocal(remotePatients: List<Patient>, inFilterId: String) {
+    private suspend fun saveToLocal(remotePatients: List<Patient>, filter: PatientFilter) {
         patientDbDataSource.updateListWith(
             remotePatients.map { it as PatientRemote },
-            inFilterId
+            filter
         )
     }
 
-    private suspend fun clearFilter(forFilterId: String) {
-        patientDbDataSource.clearFilter(forFilterId)
+    private suspend fun clearFilter(filter: PatientFilter) {
+        patientDbDataSource.clearFilter(filter)
     }
 
     suspend fun toggleBookmark(forPatient: Patient, toBookmark: Boolean): Result<Patient> {

@@ -13,5 +13,6 @@ data class PatientRemote(
     override val photoUrl: String?,
     override val updatedAt: Instant
 ) : Patient {
-    override fun copy(_isBookmarked: Boolean) = this.copy(isBookmarked = _isBookmarked)
+    override fun copy(_isBookmarked: Boolean, _bookmarkCount: Int): Patient =
+        this.copy(isBookmarked = _isBookmarked, bookmarkCount = _bookmarkCount)
 }

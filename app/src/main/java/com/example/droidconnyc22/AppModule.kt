@@ -1,6 +1,7 @@
 package com.example.droidconnyc22
 
 import android.app.Application
+import android.util.Log
 import androidx.room.Room
 import com.example.droidconnyc22.model.PatientRepository
 import com.example.droidconnyc22.model.TabsRepository
@@ -22,6 +23,7 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
+import java.util.concurrent.Executors
 
 @OptIn(ExperimentalSerializationApi::class)
 val patientDbModule = module {
@@ -47,6 +49,9 @@ val patientDbModule = module {
     fun provideDB(application: Application): PatientDB {
         return Room
             .databaseBuilder(application, PatientDB::class.java, "patient")
+            .setQueryCallback({ sqlQuery, bindArgs ->
+                Log.d(PatientDB::class.simpleName, "SqlQuery: $sqlQuery\nbindArgs: $bindArgs")
+            }, Executors.newSingleThreadExecutor())
             .build()
     }
 

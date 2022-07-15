@@ -18,8 +18,9 @@ data class PatientEntity(
     override val photoUrl: String?,
     val filterId: String,
     override val updatedAt: Instant,
-): Patient {
-    override fun copy(_isBookmarked: Boolean) = this.copy(isBookmarked = isBookmarked)
+) : Patient {
+    override fun copy(_isBookmarked: Boolean, _bookmarkCount: Int): Patient =
+        this.copy(isBookmarked = _isBookmarked, bookmarkCount = _bookmarkCount)
 }
 
 class Convertors {
