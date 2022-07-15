@@ -53,29 +53,22 @@ class PatientViewModel(
             patientRepository
                 .toggleBookmark(ofPatient, toBookmark = ofPatient.isBookmarked.not())
                 .onSuccess {
-                    updatePatientInList(it)
+                    val updatedList = updatePatientInList(it)
+                    updateStateToLoaded(updatedList)
                 }
                 .onFailure {
-                    //TODO Show a one time error
+                    updateStateToFailure(it, updatePatientInList(ofPatient))
                 }
         }
     }
 
-    private fun updatePatientInList(patient: Patient) {
-        val updatedList = _viewState.value.patientList.map {
+    private fun updatePatientInList(patient: Patient): List<Patient> {
+        return _viewState.value.patientList.map {
             if (it.patientId == patient.patientId) {
                 it.copy(patient.isBookmarked, patient.bookmarkCount)
             } else {
                 it
             }
-        }
-
-        _viewState.update {
-            PatientListUiState.Loaded(
-                updatedList,
-                tabs = it.tabs,
-                currentTabId = it.currentTabId!!
-            )
         }
     }
 
@@ -85,10 +78,10 @@ class PatientViewModel(
         }
     }
 
-    private suspend fun updateStateToFailure(exception: Throwable) = withContext(Dispatchers.Main) {
+    private suspend fun updateStateToFailure(exception: Throwable, patientList: List<Patient>? = null) = withContext(Dispatchers.Main) {
         _viewState.update {
             PatientListUiState.Error(
-                it.patientList,
+                patientList ?: it.patientList,
                 it.tabs,
                 it.currentTabId,
                 exception
@@ -96,13 +89,13 @@ class PatientViewModel(
         }
     }
 
-    private suspend fun updateStateToLoaded(patients: List<Patient>, tabId: String) =
+    private suspend fun updateStateToLoaded(patients: List<Patient>, tabId: String? = null) =
         withContext(Dispatchers.Main) {
             _viewState.update {
                 PatientListUiState.Loaded(
                     patients,
                     it.tabs,
-                    tabId
+                    tabId ?: it.currentTabId
                 )
             }
         }

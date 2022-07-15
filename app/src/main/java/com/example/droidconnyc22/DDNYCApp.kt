@@ -6,6 +6,7 @@ import androidx.preference.PreferenceManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
+import timber.log.Timber
 import java.util.*
 
 class DDNYCApp : Application() {
@@ -19,6 +20,8 @@ class DDNYCApp : Application() {
         super.onCreate()
 
         INSTANCE = this
+
+        Timber.plant(Timber.DebugTree())
 
         startKoin {
             androidLogger()

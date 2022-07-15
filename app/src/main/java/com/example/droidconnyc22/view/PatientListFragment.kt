@@ -1,12 +1,14 @@
 package com.example.droidconnyc22.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.droidconnyc22.R
 import com.example.droidconnyc22.databinding.FragmentPatientListBinding
 import com.example.droidconnyc22.model.Patient
 import com.example.droidconnyc22.model.TabData
@@ -15,6 +17,7 @@ import com.example.droidconnyc22.viewmodel.PatientViewModel
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 class PatientListFragment : Fragment() {
 
@@ -45,7 +48,7 @@ class PatientListFragment : Fragment() {
 
         viewBinding.patientList.adapter = patientAdapter
 
-        viewBinding.patientTabs.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
+        viewBinding.patientTabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 patientViewModel.onTabSelected(tab.position)
             }
@@ -60,19 +63,21 @@ class PatientListFragment : Fragment() {
     }
 
     private fun updateUiBy(uiState: PatientListUiState) {
+        Timber.i("uiState has updated: $uiState")
+
         when (uiState) {
             is PatientListUiState.Empty -> TODO()
             is PatientListUiState.Error -> {
-                Log.e("adsd", "fdsf", uiState.error)
+                Toast.makeText(context, R.string.general_error, Toast.LENGTH_SHORT).show()
             }
-            is PatientListUiState.Loaded -> {
-                patientAdapter.submitList(uiState.patientList)
-            }
+            is PatientListUiState.Loaded -> {}
             is PatientListUiState.Loading -> {}
         }
 
-        setTabs(uiState.tabs)
+        patientAdapter.submitList(uiState.patientList)
+        viewBinding.progressLayout.isVisible = uiState is PatientListUiState.Loading
 
+        setTabs(uiState.tabs)
     }
 
     private fun setTabs(tabs: List<TabData>) {
