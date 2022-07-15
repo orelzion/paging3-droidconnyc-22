@@ -8,4 +8,8 @@
     <string name="previous">Previous</string>
     <string name="patient_scan">patient scan</string>
     <string name="general_error">Something went wrong</string>
+    <string name="empty_all">No patients awaiting your attention</string>
+    <string name="empty_bookmarks_title">No bookmarks yet</string>
+    <string name="empty_bookmarks_description">Go to the other tabs and tap the bookmark icon on a patient you wish to bookmark</string>
+    <string name="empty_type">No patients found with %1$s</string>
 </resources>

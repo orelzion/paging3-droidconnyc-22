@@ -12,8 +12,10 @@ import com.example.droidconnyc22.R
 import com.example.droidconnyc22.databinding.FragmentPatientListBinding
 import com.example.droidconnyc22.model.Patient
 import com.example.droidconnyc22.model.TabData
+import com.example.droidconnyc22.viewmodel.EmptyState
 import com.example.droidconnyc22.viewmodel.PatientListUiState
 import com.example.droidconnyc22.viewmodel.PatientViewModel
+import com.example.droidconnyc22.viewmodel.isLoading
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -66,7 +68,6 @@ class PatientListFragment : Fragment() {
         Timber.i("uiState has updated: $uiState")
 
         when (uiState) {
-            is PatientListUiState.Empty -> TODO()
             is PatientListUiState.Error -> {
                 Toast.makeText(context, R.string.general_error, Toast.LENGTH_SHORT).show()
             }
@@ -75,9 +76,27 @@ class PatientListFragment : Fragment() {
         }
 
         patientAdapter.submitList(uiState.patientList)
-        viewBinding.progressLayout.isVisible = uiState is PatientListUiState.Loading
+        viewBinding.progressLayout.isVisible = uiState.isLoading()
 
         setTabs(uiState.tabs)
+
+        uiState.emptyState?.let {
+            showEmptyState(it)
+        } ?: run {
+            hideEmptyState()
+        }
+    }
+
+    private fun hideEmptyState() {
+        viewBinding.emptyState.isVisible = false
+    }
+
+    private fun showEmptyState(emptyState: EmptyState) {
+        viewBinding.emptyState.isVisible = true
+
+        viewBinding.emptyStateTitle.text = emptyState.title.value(requireContext())
+        emptyState.icon?.let { viewBinding.emptyStateIcon.setImageResource(it) }
+        viewBinding.emptyStateDescription.text = emptyState.description?.value(requireContext())
     }
 
     private fun setTabs(tabs: List<TabData>) {
