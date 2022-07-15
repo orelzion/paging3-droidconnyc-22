@@ -13,6 +13,9 @@ interface PatientService {
     @GET("patients/{type}")
     suspend fun getPatientsByType(@Path("type") forType: PatientType): List<PatientRemote>
 
+    @GET("patients?bookmarked=true")
+    suspend fun getBookmarkedPatients(): List<PatientRemote>
+
     @PUT("patients/{patientId}/bookmark")
     suspend fun setPatientBookmark(
         @Body bookmarkRequest: BookmarkRequest,

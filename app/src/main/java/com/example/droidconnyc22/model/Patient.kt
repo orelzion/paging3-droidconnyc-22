@@ -10,5 +10,5 @@ interface Patient {
     val updatedAt: Instant
     val photoUrl: String?
 
-    fun copy(_isBookmarked: Boolean): Patient
+    fun copy(_isBookmarked: Boolean, _bookmarkCount: Int): Patient
 }

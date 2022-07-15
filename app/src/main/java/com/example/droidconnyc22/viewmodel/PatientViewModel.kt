@@ -37,14 +37,14 @@ class PatientViewModel(
     }
 
     fun onTabSelected(tabIndex: Int) {
-        val selectedTabId = viewState.value.tabs[tabIndex].id
+        val selectedTab = viewState.value.tabs[tabIndex]
 
         viewModelScope.launch {
-            updateStateWithSelectedTab(selectedTabId)
+            updateStateWithSelectedTab(selectedTab.id)
 
-            val result = patientRepository.fetchListFor(selectedTabId)
+            val result = patientRepository.fetchListFor(selectedTab.filter)
             result.onFailure { updateStateToFailure(it) }
-            result.onSuccess { updateStateToLoaded(it, selectedTabId) }
+            result.onSuccess { updateStateToLoaded(it, selectedTab.id) }
         }
     }
 
@@ -64,7 +64,7 @@ class PatientViewModel(
     private fun updatePatientInList(patient: Patient) {
         val updatedList = _viewState.value.patientList.map {
             if (it.patientId == patient.patientId) {
-                it.copy(patient.isBookmarked)
+                it.copy(patient.isBookmarked, patient.bookmarkCount)
             } else {
                 it
             }
