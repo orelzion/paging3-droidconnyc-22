@@ -2,9 +2,8 @@ package com.example.droidconnyc22.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.droidconnyc22.model.Patient
-import com.example.droidconnyc22.model.PatientRepository
-import com.example.droidconnyc22.model.TabsRepository
+import com.example.droidconnyc22.R
+import com.example.droidconnyc22.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,11 +39,34 @@ class PatientViewModel(
         val selectedTab = viewState.value.tabs[tabIndex]
 
         viewModelScope.launch {
-            updateStateWithSelectedTab(selectedTab.id)
+            updateToLoadingStateWithSelectedTab(selectedTab.id)
 
             val result = patientRepository.fetchListFor(selectedTab.filter)
-            result.onFailure { updateStateToFailure(it) }
-            result.onSuccess { updateStateToLoaded(it, selectedTab.id) }
+            result.onFailure {
+                updateStateToFailure(it, emptyList(), getEmptyState(selectedTab))
+            }
+            result.onSuccess { patientsList ->
+                val emptyState = if(patientsList.isEmpty()) {
+                    getEmptyState(selectedTab)
+                } else null
+                updateStateToLoaded(patientsList, emptyState)
+            }
+        }
+    }
+
+    private fun getEmptyState(forSelectedTab: TabData): EmptyState {
+        return when (forSelectedTab.filter) {
+            PatientFilter.All -> EmptyState(title = StringResource(R.string.empty_all))
+            PatientFilter.Bookmarks -> EmptyState(
+                title = StringResource(R.string.empty_bookmarks_title),
+                description = StringResource(R.string.empty_bookmarks_description)
+            )
+            is PatientFilter.TypeFilter -> EmptyState(
+                title = StringResource(
+                    R.string.empty_type,
+                    arrayOf(forSelectedTab.title)
+                )
+            )
         }
     }
 
@@ -72,30 +94,43 @@ class PatientViewModel(
         }
     }
 
-    private suspend fun updateStateWithSelectedTab(tabId: String) = withContext(Dispatchers.Main) {
+    private suspend fun updateToLoadingStateWithSelectedTab(tabId: String) = withContext(Dispatchers.Main) {
         _viewState.update {
-            it.copy(tabId)
+            PatientListUiState.Loading(
+                emptyList(),
+                it.tabs,
+                tabId
+            )
         }
     }
 
-    private suspend fun updateStateToFailure(exception: Throwable, patientList: List<Patient>? = null) = withContext(Dispatchers.Main) {
+    private suspend fun updateStateToFailure(
+        exception: Throwable,
+        patientList: List<Patient>? = null,
+        emptyState: EmptyState? = null
+    ) = withContext(Dispatchers.Main) {
         _viewState.update {
             PatientListUiState.Error(
                 patientList ?: it.patientList,
                 it.tabs,
                 it.currentTabId,
+                emptyState,
                 exception
             )
         }
     }
 
-    private suspend fun updateStateToLoaded(patients: List<Patient>, tabId: String? = null) =
+    private suspend fun updateStateToLoaded(
+        patients: List<Patient>,
+        emptyState: EmptyState? = null
+    ) =
         withContext(Dispatchers.Main) {
             _viewState.update {
                 PatientListUiState.Loaded(
                     patients,
                     it.tabs,
-                    tabId ?: it.currentTabId
+                    it.currentTabId,
+                    emptyState
                 )
             }
         }
