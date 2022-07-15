@@ -20,7 +20,7 @@ sealed class PatientListUiState {
     data class Loaded(
         override val patientList: List<Patient>,
         override val tabs: List<TabData>,
-        override val currentTabId: String
+        override val currentTabId: String?
     ) : PatientListUiState() {
         override fun copy(withCurrentTabId: String) = copy(currentTabId = withCurrentTabId)
     }
