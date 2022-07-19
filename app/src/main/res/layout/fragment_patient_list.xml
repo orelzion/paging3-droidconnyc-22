@@ -14,16 +14,23 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tabMode="auto" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/patientList"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:orientation="vertical"
-        android:paddingTop="15dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/patientTabs" />
+        app:layout_constraintTop_toBottomOf="@id/patientTabs" >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/patientList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingTop="15dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <FrameLayout
         android:id="@+id/progressLayout"

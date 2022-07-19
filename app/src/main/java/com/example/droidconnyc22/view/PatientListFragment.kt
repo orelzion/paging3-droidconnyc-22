@@ -49,6 +49,9 @@ class PatientListFragment : Fragment() {
         }
 
         viewBinding.patientList.adapter = patientAdapter
+        viewBinding.refreshLayout.setOnRefreshListener {
+            patientViewModel.refreshList()
+        }
 
         viewBinding.patientTabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
@@ -77,6 +80,7 @@ class PatientListFragment : Fragment() {
 
         patientAdapter.submitList(uiState.patientList)
         viewBinding.progressLayout.isVisible = uiState.isLoading()
+        viewBinding.refreshLayout.isRefreshing = uiState.isLoading()
 
         setTabs(uiState.tabs)
 

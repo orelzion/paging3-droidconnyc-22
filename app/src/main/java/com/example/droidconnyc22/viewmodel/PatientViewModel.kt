@@ -38,15 +38,19 @@ class PatientViewModel(
     fun onTabSelected(tabIndex: Int) {
         val selectedTab = viewState.value.tabs[tabIndex]
 
+        fetchPatients(selectedTab, forceRefresh = false)
+    }
+
+    private fun fetchPatients(selectedTab: TabData, forceRefresh: Boolean) {
         viewModelScope.launch {
             updateToLoadingStateWithSelectedTab(selectedTab.id)
 
-            val result = patientRepository.fetchListFor(selectedTab.filter)
+            val result = patientRepository.fetchListFor(selectedTab.filter, forceRefresh)
             result.onFailure {
                 updateStateToFailure(it, emptyList(), getEmptyState(selectedTab))
             }
             result.onSuccess { patientsList ->
-                val emptyState = if(patientsList.isEmpty()) {
+                val emptyState = if (patientsList.isEmpty()) {
                     getEmptyState(selectedTab)
                 } else null
                 updateStateToLoaded(patientsList, emptyState)
@@ -94,15 +98,16 @@ class PatientViewModel(
         }
     }
 
-    private suspend fun updateToLoadingStateWithSelectedTab(tabId: String) = withContext(Dispatchers.Main) {
-        _viewState.update {
-            PatientListUiState.Loading(
-                emptyList(),
-                it.tabs,
-                tabId
-            )
+    private suspend fun updateToLoadingStateWithSelectedTab(tabId: String) =
+        withContext(Dispatchers.Main) {
+            _viewState.update {
+                PatientListUiState.Loading(
+                    emptyList(),
+                    it.tabs,
+                    tabId
+                )
+            }
         }
-    }
 
     private suspend fun updateStateToFailure(
         exception: Throwable,
@@ -134,4 +139,11 @@ class PatientViewModel(
                 )
             }
         }
+
+    fun refreshList() {
+        val selectedTab = viewState.value.tabs.find { it.id == viewState.value.currentTabId }
+        if (selectedTab != null) {
+            fetchPatients(selectedTab, forceRefresh = true)
+        }
+    }
 }
