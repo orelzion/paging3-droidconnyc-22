@@ -48,23 +48,20 @@ class PatientListFragment : Fragment() {
             }
         }
 
-        viewBinding.patientList.adapter = patientAdapter
-        viewBinding.refreshLayout.setOnRefreshListener {
-            patientViewModel.refreshList()
+        with(viewBinding) {
+            patientList.adapter = patientAdapter
+            refreshLayout.setOnRefreshListener { patientViewModel.refreshList() }
+            patientTabs.addOnTabSelectedListener(onTabSelectedListener())
+        }
+    }
+
+    private fun onTabSelectedListener() = object : TabLayout.OnTabSelectedListener {
+        override fun onTabSelected(tab: TabLayout.Tab) {
+            patientViewModel.onTabSelected(tab.position)
         }
 
-        viewBinding.patientTabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                patientViewModel.onTabSelected(tab.position)
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-            }
-
-        })
+        override fun onTabUnselected(tab: TabLayout.Tab?) {}
+        override fun onTabReselected(tab: TabLayout.Tab?) {}
     }
 
     private fun updateUiBy(uiState: PatientListUiState) {
@@ -80,7 +77,9 @@ class PatientListFragment : Fragment() {
 
         patientAdapter.submitList(uiState.patientList)
         viewBinding.progressLayout.isVisible = uiState.isLoading()
-        viewBinding.refreshLayout.isRefreshing = uiState.isLoading()
+        if (!uiState.isLoading()) {
+            viewBinding.refreshLayout.isRefreshing = false
+        }
 
         setTabs(uiState.tabs)
 
