@@ -4,17 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.droidconnyc22.R
 import com.example.droidconnyc22.model.*
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class PatientViewModel(
     private val patientRepository: PatientRepository,
     private val tabsRepository: TabsRepository
 ) : ViewModel() {
+
+    private var currentJob: Job? = null
 
     private val _viewState = MutableStateFlow<PatientListUiState>(PatientListUiState.Loading())
     val viewState
@@ -42,10 +42,14 @@ class PatientViewModel(
     }
 
     private fun fetchPatients(selectedTab: TabData, forceRefresh: Boolean) {
-        viewModelScope.launch {
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
             updateToLoadingStateWithSelectedTab(selectedTab.id)
 
             val result = patientRepository.fetchListFor(selectedTab.filter, forceRefresh)
+
+            if (!isActive) return@launch
+
             result.onFailure {
                 updateStateToFailure(it, emptyList(), getEmptyState(selectedTab))
             }

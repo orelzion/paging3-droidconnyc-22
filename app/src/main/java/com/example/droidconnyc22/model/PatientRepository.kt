@@ -20,11 +20,15 @@ class PatientRepository(
 
             return Result.success(
                 cachedList.ifEmpty {
-                    patientRemoteDataSource.getPatientListBy(filter)
-                        .also { saveToLocal(it, filter) }
+                    fetchAndSave(filter)
                 }
             )
         }
+
+    private suspend fun PatientRepository.fetchAndSave(filter: PatientFilter): List<Patient> {
+        return patientRemoteDataSource.getPatientListBy(filter)
+            .also { saveToLocal(it, filter) }
+    }
 
     private suspend fun saveToLocal(remotePatients: List<Patient>, filter: PatientFilter) {
         patientDbDataSource.updateListWith(
