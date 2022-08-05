@@ -6,6 +6,7 @@ import com.example.droidconnyc22.model.remote.PatientRemote
 fun PatientRemote.toPatientEntity(withFilterId: String): PatientEntity {
     val remoteModel = this
     return PatientEntity(
+        genId = 0,
         patientId = remoteModel.patientId,
         name = remoteModel.name,
         bookmarkCount = remoteModel.bookmarkCount,

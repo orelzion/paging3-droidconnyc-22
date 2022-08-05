@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.room.Room
 import com.example.droidconnyc22.model.PatientRepository
 import com.example.droidconnyc22.model.TabsRepository
+import com.example.droidconnyc22.model.db.PagingDao
 import com.example.droidconnyc22.model.db.PatientDB
 import com.example.droidconnyc22.model.db.PatientDao
 import com.example.droidconnyc22.model.db.PatientDbDataSource
@@ -40,7 +41,7 @@ val patientDbModule = module {
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
-            .baseUrl("http://192.168.68.100:3000/")
+            .baseUrl("http://192.168.68.102:3000/")
             .addConverterFactory(Json.asConverterFactory(contentType))
             .client(okHttpClient)
             .build()
@@ -55,9 +56,8 @@ val patientDbModule = module {
             .build()
     }
 
-    fun providePatientDao(patientDB: PatientDB): PatientDao {
-        return patientDB.patientDao
-    }
+    fun providePatientDao(patientDB: PatientDB): PatientDao = patientDB.patientDao
+    fun providePagingDao(patientDB: PatientDB): PagingDao = patientDB.pagingDao
 
     single {
         Interceptor { chain ->
@@ -70,6 +70,7 @@ val patientDbModule = module {
     // Provide DB
     singleOf(::provideDB)
     factoryOf(::providePatientDao)
+    factoryOf(::providePagingDao)
 
     // Provide network
     singleOf(::provideOkHttp)

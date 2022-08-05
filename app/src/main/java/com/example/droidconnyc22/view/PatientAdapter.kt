@@ -3,23 +3,28 @@ package com.example.droidconnyc22.view
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.example.droidconnyc22.model.Patient
+import com.example.droidconnyc22.tryOrNull
 
 class PatientAdapter(private val onBookmarkChecked: (patient: Patient) -> Unit) :
-    ListAdapter<Patient, PatientViewHolder>(PatientDiffUtil()) {
+    PagingAdapter<Patient>(PatientDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
         return PatientViewHolder.create(parent)
     }
 
-    override fun onBindViewHolder(holder: PatientViewHolder, position: Int) {
-        holder.bind(getItem(position)) {
-            onBookmarkChecked(getItem(position))
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = tryOrNull { getItem(position) }
+        if (holder is PatientViewHolder && item != null) {
+            holder.bind(item) {
+                onBookmarkChecked(item)
+            }
         }
     }
 }
 
 class PatientDiffUtil : DiffUtil.ItemCallback<Patient>() {
-    override fun areItemsTheSame(oldItem: Patient, newItem: Patient) = oldItem === newItem
+    override fun areItemsTheSame(oldItem: Patient, newItem: Patient) = oldItem.patientId == newItem.patientId
     override fun areContentsTheSame(oldItem: Patient, newItem: Patient) = oldItem == newItem
 }

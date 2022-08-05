@@ -7,10 +7,10 @@ import com.example.droidconnyc22.model.Patient
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant
 
-@Entity
+@Entity()
 data class PatientEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val genId: Int,
     override val patientId: String,
     override val name: String,
     override val bookmarkCount: Int,
