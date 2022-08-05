@@ -10,13 +10,18 @@ import kotlinx.coroutines.withContext
 
 class PatientDbDataSource(private val patientDao: PatientDao) : PatientDataSource {
 
-    override suspend fun getPatientListBy(filter: PatientFilter): List<PatientEntity> =
+    override suspend fun getPatientListBy(
+        filter: PatientFilter,
+        lastPatientId: String?,
+        limit: Int
+    ): List<PatientEntity> =
         withContext(Dispatchers.IO) {
             patientDao.getAllFor(filter.filterId)
         }
 
     override suspend fun toggleBookmark(forPatient: Patient, toBookmark: Boolean): Patient {
-        val updatedPatient = forPatient.copy(_isBookmarked = toBookmark, _bookmarkCount = forPatient.bookmarkCount)
+        val updatedPatient =
+            forPatient.copy(_isBookmarked = toBookmark, _bookmarkCount = forPatient.bookmarkCount)
         updatePatient(updatedPatient)
 
         return updatedPatient

@@ -10,12 +10,12 @@ class PatientRemoteDataSource(
     private val patientService: PatientService
 ) : PatientDataSource {
 
-    override suspend fun getPatientListBy(filter: PatientFilter): List<Patient> =
+    override suspend fun getPatientListBy(filter: PatientFilter, lastPatientId: String?, limit: Int): List<Patient> =
         withContext(Dispatchers.Default) {
             when (filter) {
-                PatientFilter.All -> patientService.getAllPatients()
-                PatientFilter.Bookmarks -> patientService.getBookmarkedPatients()
-                is PatientFilter.TypeFilter -> patientService.getPatientsByType(filter.type)
+                PatientFilter.All -> patientService.getAllPatients(limit, lastPatientId)
+                PatientFilter.Bookmarks -> patientService.getBookmarkedPatients(limit, lastPatientId)
+                is PatientFilter.TypeFilter -> patientService.getPatientsByType(filter.type, limit, lastPatientId)
             }
         }
 

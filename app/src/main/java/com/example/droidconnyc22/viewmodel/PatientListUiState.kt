@@ -21,6 +21,15 @@ sealed class PatientListUiState {
         override fun copy(withCurrentTabId: String) = copy(currentTabId = withCurrentTabId)
     }
 
+    data class LoadingMore(
+        override val patientList: List<Patient> = emptyList(),
+        override val tabs: List<TabData> = emptyList(),
+        override val currentTabId: String,
+        override val emptyState: EmptyState? = null
+    ) : PatientListUiState() {
+        override fun copy(withCurrentTabId: String) = copy(currentTabId = withCurrentTabId)
+    }
+
     data class Loaded(
         override val patientList: List<Patient>,
         override val tabs: List<TabData>,
@@ -48,3 +57,4 @@ data class EmptyState(
 )
 
 fun PatientListUiState.isLoading() = this is PatientListUiState.Loading
+fun PatientListUiState.isLoadingMore() = this is PatientListUiState.LoadingMore

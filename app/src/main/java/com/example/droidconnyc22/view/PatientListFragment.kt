@@ -12,10 +12,7 @@ import com.example.droidconnyc22.R
 import com.example.droidconnyc22.databinding.FragmentPatientListBinding
 import com.example.droidconnyc22.model.Patient
 import com.example.droidconnyc22.model.TabData
-import com.example.droidconnyc22.viewmodel.EmptyState
-import com.example.droidconnyc22.viewmodel.PatientListUiState
-import com.example.droidconnyc22.viewmodel.PatientViewModel
-import com.example.droidconnyc22.viewmodel.isLoading
+import com.example.droidconnyc22.viewmodel.*
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -52,6 +49,14 @@ class PatientListFragment : Fragment() {
             patientList.adapter = patientAdapter
             refreshLayout.setOnRefreshListener { patientViewModel.refreshList() }
             patientTabs.addOnTabSelectedListener(onTabSelectedListener())
+
+            patientList.addOnScrollListener(object: PagingScrollListener(patientList.layoutManager) {
+                override fun loadMoreItems() {
+                    patientViewModel.loadMore()
+                }
+                override val isLoading: Boolean
+                    get() = patientViewModel.viewState.value.isLoadingMore()
+            })
         }
     }
 
@@ -59,9 +64,8 @@ class PatientListFragment : Fragment() {
         override fun onTabSelected(tab: TabLayout.Tab) {
             patientViewModel.onTabSelected(tab.position)
         }
-
-        override fun onTabUnselected(tab: TabLayout.Tab?) {}
-        override fun onTabReselected(tab: TabLayout.Tab?) {}
+        override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
+        override fun onTabReselected(tab: TabLayout.Tab?) = Unit
     }
 
     private fun updateUiBy(uiState: PatientListUiState) {
@@ -71,11 +75,14 @@ class PatientListFragment : Fragment() {
             is PatientListUiState.Error -> {
                 Toast.makeText(context, R.string.general_error, Toast.LENGTH_SHORT).show()
             }
-            is PatientListUiState.Loaded -> {}
-            is PatientListUiState.Loading -> {}
+            else -> {}
         }
 
-        patientAdapter.submitList(uiState.patientList)
+        with(patientAdapter) {
+            submitList(uiState.patientList)
+            isLoadingMore = uiState.isLoadingMore()
+        }
+
         viewBinding.progressLayout.isVisible = uiState.isLoading()
         if (!uiState.isLoading()) {
             viewBinding.refreshLayout.isRefreshing = false

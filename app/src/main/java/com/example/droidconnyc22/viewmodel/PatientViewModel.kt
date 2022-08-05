@@ -38,28 +38,34 @@ class PatientViewModel(
     fun onTabSelected(tabIndex: Int) {
         val selectedTab = viewState.value.tabs[tabIndex]
 
+        updateToLoadingStateWithSelectedTab(selectedTab.id)
         fetchPatients(selectedTab, forceRefresh = false)
     }
 
     private fun fetchPatients(selectedTab: TabData, forceRefresh: Boolean) {
         currentJob?.cancel()
         currentJob = viewModelScope.launch {
-            updateToLoadingStateWithSelectedTab(selectedTab.id)
-
             val result = patientRepository.fetchListFor(selectedTab.filter, forceRefresh)
 
             if (!isActive) return@launch
 
             result.onFailure {
-                updateStateToFailure(it, emptyList(), getEmptyState(selectedTab))
+                val previousList = when (_viewState.value.currentTabId) {
+                    selectedTab.id -> _viewState.value.patientList
+                    else -> emptyList()
+                }
+                updateStateToFailure(it, previousList, emptyStateOrNull(previousList, selectedTab))
             }
             result.onSuccess { patientsList ->
-                val emptyState = if (patientsList.isEmpty()) {
-                    getEmptyState(selectedTab)
-                } else null
-                updateStateToLoaded(patientsList, emptyState)
+                updateStateToLoaded(patientsList, emptyStateOrNull(patientsList, selectedTab))
             }
         }
+    }
+
+    private fun emptyStateOrNull(patientList: List<Patient>?, forSelectedTab: TabData): EmptyState? {
+        return if (patientList?.isEmpty() == true) {
+            getEmptyState(forSelectedTab)
+        } else null
     }
 
     private fun getEmptyState(forSelectedTab: TabData): EmptyState {
@@ -102,16 +108,15 @@ class PatientViewModel(
         }
     }
 
-    private suspend fun updateToLoadingStateWithSelectedTab(tabId: String) =
-        withContext(Dispatchers.Main) {
-            _viewState.update {
-                PatientListUiState.Loading(
-                    emptyList(),
-                    it.tabs,
-                    tabId
-                )
-            }
+    private fun updateToLoadingStateWithSelectedTab(tabId: String) {
+        _viewState.update {
+            PatientListUiState.Loading(
+                emptyList(),
+                it.tabs,
+                tabId
+            )
         }
+    }
 
     private suspend fun updateStateToFailure(
         exception: Throwable,
@@ -148,6 +153,21 @@ class PatientViewModel(
         val selectedTab = viewState.value.tabs.find { it.id == viewState.value.currentTabId }
         if (selectedTab != null) {
             fetchPatients(selectedTab, forceRefresh = true)
+        }
+    }
+
+    fun loadMore() {
+        _viewState.update {
+            PatientListUiState.LoadingMore(
+                it.patientList,
+                it.tabs,
+                it.currentTabId!!
+            )
+        }
+
+        val selectedTab = viewState.value.tabs.find { it.id == viewState.value.currentTabId }
+        if (selectedTab != null) {
+            fetchPatients(selectedTab, forceRefresh = false)
         }
     }
 }

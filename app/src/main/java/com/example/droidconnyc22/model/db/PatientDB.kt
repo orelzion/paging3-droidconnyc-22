@@ -4,10 +4,11 @@ import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import com.example.droidconnyc22.model.Patient
 
-@Database(entities = [PatientEntity::class], version = 1, exportSchema = false)
+@Database(entities = [PatientEntity::class, PagingEntity::class], version = 1, exportSchema = false)
 @TypeConverters(Convertors::class)
-abstract class PatientDB: RoomDatabase() {
+abstract class PatientDB : RoomDatabase() {
     abstract val patientDao: PatientDao
+    abstract val pagingDao: PagingDao
 }
 
 @Dao
@@ -15,7 +16,11 @@ interface PatientDao {
     @Query("SELECT * FROM patiententity WHERE :patientId = patientId")
     fun getPatientBy(patientId: String): List<PatientEntity>
 
-    @Query("SELECT * FROM patiententity WHERE :filterId = filterId")
+    @Query("""
+        SELECT * FROM patiententity 
+        WHERE :filterId = filterId
+        ORDER BY genId
+        """)
     fun getAllFor(filterId: String): List<PatientEntity>
 
     @Insert(onConflict = REPLACE)
@@ -45,4 +50,17 @@ interface PatientDao {
             update(updatedEntity)
         }
     }
+}
+
+@Dao
+interface PagingDao {
+
+    @Insert(onConflict = REPLACE)
+    fun createOrUpdate(pagingEntity: PagingEntity)
+
+    @Query("SELECT * FROM pagingentity WHERE :filterId = filterId")
+    fun getFor(filterId: String): List<PagingEntity>
+
+    @Query("DELETE FROM pagingentity WHERE :filterId = filterId")
+    fun clear(filterId: String)
 }
