@@ -7,12 +7,18 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingData
 import com.example.droidconnyc22.R
 import com.example.droidconnyc22.databinding.FragmentPatientListBinding
 import com.example.droidconnyc22.model.Patient
 import com.example.droidconnyc22.model.TabData
-import com.example.droidconnyc22.viewmodel.*
+import com.example.droidconnyc22.model.db.PatientEntity
+import com.example.droidconnyc22.viewmodel.EmptyState
+import com.example.droidconnyc22.viewmodel.PatientListUiState
+import com.example.droidconnyc22.viewmodel.PatientViewModel
+import com.example.droidconnyc22.viewmodel.isLoading
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -40,23 +46,27 @@ class PatientListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launchWhenStarted {
-            patientViewModel.viewState.collectLatest {
-                updateUiBy(it)
-            }
+            patientViewModel
+                .viewState
+                .flowWithLifecycle(lifecycle)
+                .collectLatest {
+                    updateUiBy(it)
+                }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            patientViewModel
+                .patientListFlow
+                .flowWithLifecycle(lifecycle)
+                .collectLatest { pagingData: PagingData<PatientEntity> ->
+                    patientAdapter.submitData(pagingData)
+                }
         }
 
         with(viewBinding) {
             patientList.adapter = patientAdapter
-            refreshLayout.setOnRefreshListener { patientViewModel.refreshList() }
+            refreshLayout.setOnRefreshListener { patientAdapter.refresh() }
             patientTabs.addOnTabSelectedListener(onTabSelectedListener())
-
-            patientList.addOnScrollListener(object: PagingScrollListener(patientList.layoutManager) {
-                override fun loadMoreItems() {
-                    patientViewModel.loadMore()
-                }
-                override val isLoading: Boolean
-                    get() = patientViewModel.viewState.value.isLoadingMore()
-            })
         }
     }
 
@@ -64,6 +74,7 @@ class PatientListFragment : Fragment() {
         override fun onTabSelected(tab: TabLayout.Tab) {
             patientViewModel.onTabSelected(tab.position)
         }
+
         override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
         override fun onTabReselected(tab: TabLayout.Tab?) = Unit
     }
@@ -76,11 +87,6 @@ class PatientListFragment : Fragment() {
                 Toast.makeText(context, R.string.general_error, Toast.LENGTH_SHORT).show()
             }
             else -> {}
-        }
-
-        with(patientAdapter) {
-            submitList(uiState.patientList)
-            isLoadingMore = uiState.isLoadingMore()
         }
 
         viewBinding.progressLayout.isVisible = uiState.isLoading()

@@ -1,7 +1,6 @@
 package com.example.droidconnyc22
 
 import android.app.Application
-import android.util.Log
 import androidx.room.Room
 import com.example.droidconnyc22.model.PatientRepository
 import com.example.droidconnyc22.model.TabsRepository
@@ -10,6 +9,7 @@ import com.example.droidconnyc22.model.db.PatientDB
 import com.example.droidconnyc22.model.db.PatientDao
 import com.example.droidconnyc22.model.db.PatientDbDataSource
 import com.example.droidconnyc22.model.remote.PatientRemoteDataSource
+import com.example.droidconnyc22.model.remote.PatientRemoteMediator
 import com.example.droidconnyc22.model.remote.PatientService
 import com.example.droidconnyc22.viewmodel.PatientViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -24,6 +24,7 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
+import timber.log.Timber
 import java.util.concurrent.Executors
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -41,7 +42,7 @@ val patientDbModule = module {
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
-            .baseUrl("http://192.168.68.102:3000/")
+            .baseUrl("http://192.168.68.107:3000/")
             .addConverterFactory(Json.asConverterFactory(contentType))
             .client(okHttpClient)
             .build()
@@ -51,7 +52,7 @@ val patientDbModule = module {
         return Room
             .databaseBuilder(application, PatientDB::class.java, "patient")
             .setQueryCallback({ sqlQuery, bindArgs ->
-                Log.d(PatientDB::class.simpleName, "SqlQuery: $sqlQuery\nbindArgs: $bindArgs")
+                Timber.d("SqlQuery: $sqlQuery\nbindArgs: $bindArgs")
             }, Executors.newSingleThreadExecutor())
             .build()
     }
@@ -81,6 +82,14 @@ val patientDbModule = module {
     singleOf(::PatientDbDataSource)
     singleOf(::PatientRemoteDataSource)
     singleOf(::PatientRepository)
+    factory { params ->
+        PatientRemoteMediator(
+            filter = params.get(),
+            patientService = get(),
+            patientDao = get(),
+            pagingDao = get()
+        )
+    }
 
     // Provide tabs repository
     singleOf(::TabsRepository)

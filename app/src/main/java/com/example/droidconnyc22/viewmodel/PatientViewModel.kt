@@ -2,23 +2,36 @@ package com.example.droidconnyc22.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.example.droidconnyc22.R
 import com.example.droidconnyc22.model.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PatientViewModel(
     private val patientRepository: PatientRepository,
     private val tabsRepository: TabsRepository
 ) : ViewModel() {
 
-    private var currentJob: Job? = null
+    private val _viewState =
+        MutableStateFlow<PatientListUiState>(PatientListUiState.Loading())
 
-    private val _viewState = MutableStateFlow<PatientListUiState>(PatientListUiState.Loading())
     val viewState
         get() = _viewState.asStateFlow()
+
+    private val filterFlow = MutableStateFlow<PatientFilter>(PatientFilter.Bookmarks)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val patientListFlow = filterFlow.flatMapLatest { filter ->
+        patientRepository.createPager(filter)
+            .flow
+    }.cachedIn(viewModelScope)
 
     init {
         viewModelScope.launch {
@@ -35,34 +48,21 @@ class PatientViewModel(
         }
     }
 
+    private fun getFilterToCurrentTab(uiState: PatientListUiState): PatientFilter {
+        return uiState.tabs.find { it.id == uiState.currentTabId }?.filter ?: PatientFilter.All
+    }
+
     fun onTabSelected(tabIndex: Int) {
         val selectedTab = viewState.value.tabs[tabIndex]
-
         updateToLoadingStateWithSelectedTab(selectedTab.id)
-        fetchPatients(selectedTab, forceRefresh = false)
+
+        filterFlow.value = getFilterToCurrentTab(_viewState.value)
     }
 
-    private fun fetchPatients(selectedTab: TabData, forceRefresh: Boolean) {
-        currentJob?.cancel()
-        currentJob = viewModelScope.launch {
-            val result = patientRepository.fetchListFor(selectedTab.filter, forceRefresh)
-
-            if (!isActive) return@launch
-
-            result.onFailure {
-                val previousList = when (_viewState.value.currentTabId) {
-                    selectedTab.id -> _viewState.value.patientList
-                    else -> emptyList()
-                }
-                updateStateToFailure(it, previousList, emptyStateOrNull(previousList, selectedTab))
-            }
-            result.onSuccess { patientsList ->
-                updateStateToLoaded(patientsList, emptyStateOrNull(patientsList, selectedTab))
-            }
-        }
-    }
-
-    private fun emptyStateOrNull(patientList: List<Patient>?, forSelectedTab: TabData): EmptyState? {
+    private fun emptyStateOrNull(
+        patientList: List<Patient>?,
+        forSelectedTab: TabData
+    ): EmptyState? {
         return if (patientList?.isEmpty() == true) {
             getEmptyState(forSelectedTab)
         } else null
@@ -149,25 +149,4 @@ class PatientViewModel(
             }
         }
 
-    fun refreshList() {
-        val selectedTab = viewState.value.tabs.find { it.id == viewState.value.currentTabId }
-        if (selectedTab != null) {
-            fetchPatients(selectedTab, forceRefresh = true)
-        }
-    }
-
-    fun loadMore() {
-        _viewState.update {
-            PatientListUiState.LoadingMore(
-                it.patientList,
-                it.tabs,
-                it.currentTabId!!
-            )
-        }
-
-        val selectedTab = viewState.value.tabs.find { it.id == viewState.value.currentTabId }
-        if (selectedTab != null) {
-            fetchPatients(selectedTab, forceRefresh = false)
-        }
-    }
 }

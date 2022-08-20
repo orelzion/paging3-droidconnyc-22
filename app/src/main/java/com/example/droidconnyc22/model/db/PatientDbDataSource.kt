@@ -19,6 +19,8 @@ class PatientDbDataSource(private val patientDao: PatientDao) : PatientDataSourc
             patientDao.getAllFor(filter.filterId)
         }
 
+    fun getPatientListPaging(filter: PatientFilter) = patientDao.getAllPagedFor(filter.filterId)
+
     override suspend fun toggleBookmark(forPatient: Patient, toBookmark: Boolean): Patient {
         val updatedPatient =
             forPatient.copy(_isBookmarked = toBookmark, _bookmarkCount = forPatient.bookmarkCount)
