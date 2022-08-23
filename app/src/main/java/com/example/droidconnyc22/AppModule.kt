@@ -42,7 +42,7 @@ val patientDbModule = module {
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
-            .baseUrl("http://192.168.68.107:3000/")
+            .baseUrl("http://192.168.1.81:3000/")
             .addConverterFactory(Json.asConverterFactory(contentType))
             .client(okHttpClient)
             .build()

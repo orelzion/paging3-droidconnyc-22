@@ -9,6 +9,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.example.droidconnyc22.R
 import com.example.droidconnyc22.databinding.FragmentPatientListBinding
@@ -18,7 +20,6 @@ import com.example.droidconnyc22.model.db.PatientEntity
 import com.example.droidconnyc22.viewmodel.EmptyState
 import com.example.droidconnyc22.viewmodel.PatientListUiState
 import com.example.droidconnyc22.viewmodel.PatientViewModel
-import com.example.droidconnyc22.viewmodel.isLoading
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -63,11 +64,38 @@ class PatientListFragment : Fragment() {
                 }
         }
 
+        lifecycleScope.launchWhenStarted {
+            patientAdapter
+                .loadStateFlow
+                .flowWithLifecycle(lifecycle)
+                .collectLatest {
+                    loadStateUpdated(it)
+                }
+        }
+
         with(viewBinding) {
-            patientList.adapter = patientAdapter
+            patientList.adapter = patientAdapter.withLoadStateFooter(PatientLoadingAdapter())
             refreshLayout.setOnRefreshListener { patientAdapter.refresh() }
             patientTabs.addOnTabSelectedListener(onTabSelectedListener())
         }
+    }
+
+    private fun loadStateUpdated(loadStates: CombinedLoadStates) {
+        when (loadStates.refresh) {
+            is LoadState.NotLoading -> viewBinding.refreshLayout.isRefreshing = false
+            LoadState.Loading -> viewBinding.refreshLayout.isRefreshing = true
+            is LoadState.Error -> onError()
+        }
+    }
+
+    private fun onError() {
+        viewBinding.refreshLayout.isRefreshing = false
+        viewBinding.progressLayout.isVisible = false
+        Toast.makeText(
+            context,
+            R.string.general_error,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun onTabSelectedListener() = object : TabLayout.OnTabSelectedListener {
@@ -87,11 +115,6 @@ class PatientListFragment : Fragment() {
                 Toast.makeText(context, R.string.general_error, Toast.LENGTH_SHORT).show()
             }
             else -> {}
-        }
-
-        viewBinding.progressLayout.isVisible = uiState.isLoading()
-        if (!uiState.isLoading()) {
-            viewBinding.refreshLayout.isRefreshing = false
         }
 
         setTabs(uiState.tabs)
