@@ -12,6 +12,7 @@ import com.example.droidconnyc22.databinding.LoadingViewHolderBinding
 import com.example.droidconnyc22.model.db.PatientEntity
 import com.example.droidconnyc22.tryOrNull
 
+// Droidcon 1
 class PatientAdapter(private val onBookmarkChecked: (patient: PatientEntity) -> Unit) :
     PagingDataAdapter<PatientEntity, PatientViewHolder>(PatientDiffUtil()) {
 
