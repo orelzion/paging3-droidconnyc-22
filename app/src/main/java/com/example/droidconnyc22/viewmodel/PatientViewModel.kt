@@ -44,7 +44,7 @@ class PatientViewModel(
                 }
             }
 
-            onTabSelected(0)
+            onTabSelected(1)
         }
     }
 

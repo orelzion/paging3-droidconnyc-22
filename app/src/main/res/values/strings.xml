@@ -12,4 +12,5 @@
     <string name="empty_bookmarks_title">No bookmarks yet</string>
     <string name="empty_bookmarks_description">Go to the other tabs and tap the bookmark icon on a patient you wish to bookmark</string>
     <string name="empty_type">No patients found with %1$s</string>
+    <string name="title_activity_main_compose">MainComposeActivity</string>
 </resources>
