@@ -25,9 +25,10 @@ class PatientViewModel(
     val viewState
         get() = _viewState.asStateFlow()
 
+    // Droidcon 3
     private val filterFlow = MutableStateFlow<PatientFilter>(PatientFilter.Bookmarks)
 
-    // Droidcon 5
+    // Droidcon 4
     @OptIn(ExperimentalCoroutinesApi::class)
     val patientListFlow = filterFlow.flatMapLatest { filter ->
         patientRepository.createPager(filter)

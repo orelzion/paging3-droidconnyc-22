@@ -1,5 +1,6 @@
 package com.example.droidconnyc22.model.db
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import com.example.droidconnyc22.model.Patient
@@ -23,16 +24,16 @@ interface PatientDao {
         """)
     fun getAllFor(filterId: String): List<PatientEntity>
 
-    // Droidcon 2
-//    @Query("""
-//        SELECT * FROM patiententity
-//        WHERE :filterId = filterId
-//        ORDER BY genId
-//        """)
-//    fun getAllPagedFor(filterId: String): PagingSource<Int, PatientEntity>
-//
-//    @Query("SELECT COUNT(*) FROM patiententity WHERE :filterId = filterId")
-//    fun getFilterSize(filterId: String): Int
+    // Droidcon 10
+    @Query("""
+        SELECT * FROM patiententity
+        WHERE :filterId = filterId
+        ORDER BY genId
+        """)
+    fun getAllPagedFor(filterId: String): PagingSource<Int, PatientEntity>
+
+    @Query("SELECT COUNT(*) FROM patiententity WHERE :filterId = filterId")
+    fun getFilterSize(filterId: String): Int
 
     @Insert(onConflict = REPLACE)
     fun createOrUpdate(patients: List<PatientEntity>)

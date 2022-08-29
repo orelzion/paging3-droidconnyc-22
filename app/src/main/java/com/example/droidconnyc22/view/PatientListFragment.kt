@@ -20,7 +20,6 @@ import com.example.droidconnyc22.model.db.PatientEntity
 import com.example.droidconnyc22.viewmodel.EmptyState
 import com.example.droidconnyc22.viewmodel.PatientListUiState
 import com.example.droidconnyc22.viewmodel.PatientViewModel
-import com.example.droidconnyc22.viewmodel.isLoadingMore
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -56,6 +55,7 @@ class PatientListFragment : Fragment() {
                 }
         }
 
+        // Droidcon 5
         lifecycleScope.launchWhenStarted {
             patientViewModel
                 .patientListFlow
@@ -65,6 +65,7 @@ class PatientListFragment : Fragment() {
                 }
         }
 
+        // Droidcon 7
         lifecycleScope.launchWhenStarted {
             patientAdapter
                 .loadStateFlow
@@ -74,26 +75,28 @@ class PatientListFragment : Fragment() {
                 }
         }
 
-        // Droidcon 6
-//        with(viewBinding) {
-//            patientList.adapter = patientAdapter.withLoadStateFooter(PatientLoadingAdapter())
-//            refreshLayout.setOnRefreshListener { patientAdapter.refresh() }
-//            patientTabs.addOnTabSelectedListener(onTabSelectedListener())
-//        }
-
         with(viewBinding) {
-            patientList.adapter = patientAdapter
-            refreshLayout.setOnRefreshListener { patientViewModel.refreshList() }
-            patientTabs.addOnTabSelectedListener(onTabSelectedListener())
+            // Droidcon 8
+            patientList.adapter = patientAdapter.withLoadStateFooter(PatientLoadingAdapter())
 
-            patientList.addOnScrollListener(object: PagingScrollListener(patientList.layoutManager) {
-                override fun loadMoreItems() {
-                    patientViewModel.loadMore()
-                }
-                override val isLoading: Boolean
-                    get() = patientViewModel.viewState.value.isLoadingMore()
-            })
+            // Droidcon 6
+            refreshLayout.setOnRefreshListener { patientAdapter.refresh() }
+            patientTabs.addOnTabSelectedListener(onTabSelectedListener())
         }
+
+//        with(viewBinding) {
+//            patientList.adapter = patientAdapter
+//            refreshLayout.setOnRefreshListener { patientViewModel.refreshList() }
+//            patientTabs.addOnTabSelectedListener(onTabSelectedListener())
+//
+//            patientList.addOnScrollListener(object: PagingScrollListener(patientList.layoutManager) {
+//                override fun loadMoreItems() {
+//                    patientViewModel.loadMore()
+//                }
+//                override val isLoading: Boolean
+//                    get() = patientViewModel.viewState.value.isLoadingMore()
+//            })
+//        }
     }
 
     private fun loadStateUpdated(loadStates: CombinedLoadStates) {

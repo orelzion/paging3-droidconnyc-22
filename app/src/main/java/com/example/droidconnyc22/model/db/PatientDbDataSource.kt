@@ -19,7 +19,6 @@ class PatientDbDataSource(private val patientDao: PatientDao) : PatientDataSourc
             patientDao.getAllFor(filter.filterId)
         }
 
-    // Droidcon 3
     fun getPatientListPaging(filter: PatientFilter) = patientDao.getAllPagedFor(filter.filterId)
 
     override suspend fun toggleBookmark(forPatient: Patient, toBookmark: Boolean): Patient {

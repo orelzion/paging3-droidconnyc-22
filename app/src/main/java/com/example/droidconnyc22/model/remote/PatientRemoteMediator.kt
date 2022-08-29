@@ -11,6 +11,7 @@ import com.example.droidconnyc22.model.db.PatientDao
 import com.example.droidconnyc22.model.db.PatientEntity
 import com.example.droidconnyc22.model.toPatientEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalPagingApi::class)
@@ -25,6 +26,7 @@ class PatientRemoteMediator(
      * If we don't have anything loaded to this filter, launch a refresh load
      * Otherwise skip initial launch and load from the saved Room cache
      */
+    // Droidcon 11
     override suspend fun initialize() = withContext(Dispatchers.IO) {
         if (patientDao.getFilterSize(filter.filterId) == 0) {
             InitializeAction.LAUNCH_INITIAL_REFRESH
@@ -37,6 +39,8 @@ class PatientRemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, PatientEntity>
     ): MediatorResult {
+
+        // Droidcon 12
         val pagingProperties: PagingEntity? = when (loadType) {
             LoadType.REFRESH -> null
             LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
@@ -52,6 +56,7 @@ class PatientRemoteMediator(
         }
 
         return try {
+            // Droidcon 13
             val reachedEnd = withContext(Dispatchers.IO) {
                 loadMore(
                     filter,
@@ -59,6 +64,9 @@ class PatientRemoteMediator(
                     pageSize = state.config.pageSize
                 )
             }
+
+            // To increase the effect
+            delay(3000)
 
             MediatorResult.Success(endOfPaginationReached = reachedEnd.value)
         } catch (e: Exception) {
@@ -71,6 +79,8 @@ class PatientRemoteMediator(
         pagingProperties: PagingEntity?,
         pageSize: Int
     ): ReachedEnd {
+
+        // Droidcon 14
         val patients = when (filter) {
             PatientFilter.All -> fetchAll(pageSize, pagingProperties)
             PatientFilter.Bookmarks -> fetchBookmarks(pageSize, pagingProperties)
