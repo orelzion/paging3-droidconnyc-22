@@ -50,6 +50,7 @@ class PatientListFragment : Fragment() {
             refreshLayout.setOnRefreshListener { patientViewModel.refreshList() }
             patientTabs.addOnTabSelectedListener(onTabSelectedListener())
 
+            // Droidcon 2
             patientList.addOnScrollListener(object: PagingScrollListener(patientList.layoutManager) {
                 override fun loadMoreItems() {
                     patientViewModel.loadMore()

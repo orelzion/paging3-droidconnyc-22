@@ -42,6 +42,7 @@ class PatientViewModel(
         fetchPatients(selectedTab, forceRefresh = false)
     }
 
+    // Droidcon 4
     private fun fetchPatients(selectedTab: TabData, forceRefresh: Boolean) {
         currentJob?.cancel()
         currentJob = viewModelScope.launch {
@@ -156,6 +157,7 @@ class PatientViewModel(
         }
     }
 
+    // Droidcon 3
     fun loadMore() {
         _viewState.update {
             PatientListUiState.LoadingMore(

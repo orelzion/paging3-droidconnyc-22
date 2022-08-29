@@ -14,6 +14,7 @@ class PatientRepository(
     private val pagingDao: PagingDao
 ) {
 
+    // Droidcon 5
     suspend fun fetchListFor(
         filter: PatientFilter,
         cleanFetch: Boolean = false
@@ -24,13 +25,16 @@ class PatientRepository(
                 clearFilter(filter)
             }
 
+            // Driodcon 6
             val pagingData = getPagingData(filter)
             if (pagingData?.hasReachLimit == true) {
                 return Result.success(patientDbDataSource.getPatientListBy(filter))
             }
 
+            // Driodcon 7
             fetchAndSave(filter, pagingData?.lastCursorId)
 
+            // Driodcon 8
             return Result.success(
                 patientDbDataSource.getPatientListBy(filter)
             )

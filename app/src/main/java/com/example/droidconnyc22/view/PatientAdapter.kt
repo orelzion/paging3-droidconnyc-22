@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.droidconnyc22.model.Patient
 import com.example.droidconnyc22.tryOrNull
 
+
+// Droidcon 1
 class PatientAdapter(private val onBookmarkChecked: (patient: Patient) -> Unit) :
     PagingAdapter<Patient>(PatientDiffUtil()) {
 
