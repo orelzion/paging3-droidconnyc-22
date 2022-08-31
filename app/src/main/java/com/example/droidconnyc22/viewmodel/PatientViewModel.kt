@@ -50,15 +50,19 @@ class PatientViewModel(
         }
     }
 
-    private fun getFilterToCurrentTab(uiState: PatientListUiState): PatientFilter {
-        return uiState.tabs.find { it.id == uiState.currentTabId }?.filter ?: PatientFilter.All
+    private fun getFilterToCurrentTab(): PatientFilter {
+        return currentTabData()?.filter ?: PatientFilter.All
+    }
+
+    private fun currentTabData(): TabData? {
+        return viewState.value.tabs.find { it.id == viewState.value.currentTabId }
     }
 
     fun onTabSelected(tabIndex: Int) {
         val selectedTab = viewState.value.tabs[tabIndex]
         updateToLoadingStateWithSelectedTab(selectedTab.id)
 
-        filterFlow.value = getFilterToCurrentTab(_viewState.value)
+        filterFlow.value = getFilterToCurrentTab()
     }
 
     private fun emptyStateOrNull(
@@ -68,6 +72,10 @@ class PatientViewModel(
         return if (patientList?.isEmpty() == true) {
             getEmptyState(forSelectedTab)
         } else null
+    }
+
+    fun getEmptyState(): EmptyState? {
+        return currentTabData()?.let { getEmptyState(it) }
     }
 
     private fun getEmptyState(forSelectedTab: TabData): EmptyState {

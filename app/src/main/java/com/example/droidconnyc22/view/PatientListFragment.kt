@@ -101,9 +101,28 @@ class PatientListFragment : Fragment() {
 
     private fun loadStateUpdated(loadStates: CombinedLoadStates) {
         when (loadStates.refresh) {
-            is LoadState.NotLoading -> viewBinding.refreshLayout.isRefreshing = false
-            LoadState.Loading -> viewBinding.refreshLayout.isRefreshing = true
-            is LoadState.Error -> onError()
+            is LoadState.NotLoading -> {
+                viewBinding.refreshLayout.isRefreshing = false
+                toggleEmptyState()
+            }
+            LoadState.Loading -> {
+                viewBinding.refreshLayout.isRefreshing = true
+                hideEmptyState()
+            }
+            is LoadState.Error -> {
+                toggleEmptyState()
+                onError()
+            }
+        }
+    }
+
+    private fun toggleEmptyState() {
+        if (patientAdapter.itemCount == 0) {
+            patientViewModel.getEmptyState()?.let {
+                showEmptyState(it)
+            }
+        } else {
+            hideEmptyState()
         }
     }
 
