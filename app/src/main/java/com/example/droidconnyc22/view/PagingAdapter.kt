@@ -25,9 +25,11 @@ abstract class PagingAdapter<T>(diffCallback: DiffUtil.ItemCallback<T>) :
             val viewBinding = LoadingViewHolderBinding.inflate(LayoutInflater.from(parent.context))
             LoadingViewHolder(viewBinding)
         } else {
-            super.createViewHolder(parent, viewType)
+            viewHolder(parent, viewType)
         }
     }
+
+    abstract fun viewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
 
     override fun getItemCount(): Int {
         val listCount = super.getItemCount()
@@ -42,9 +44,7 @@ abstract class PagingAdapter<T>(diffCallback: DiffUtil.ItemCallback<T>) :
 
         return when {
             !isLoadingMore -> actualViewType
-            position == itemCount - 1 -> {
-                LOADING_VIEW_TYPE
-            }
+            position == (itemCount - 1) -> LOADING_VIEW_TYPE
             else -> actualViewType
         }
     }

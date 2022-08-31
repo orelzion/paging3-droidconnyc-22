@@ -6,6 +6,7 @@ import com.example.droidconnyc22.model.db.PatientDbDataSource
 import com.example.droidconnyc22.model.remote.PatientRemote
 import com.example.droidconnyc22.model.remote.PatientRemoteDataSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class PatientRepository(
@@ -45,6 +46,8 @@ class PatientRepository(
     }
 
     private suspend fun fetchAndSave(filter: PatientFilter, lastPatientId: String?): List<Patient> {
+        // To increase the effect
+        delay(3000)
         return patientRemoteDataSource.getPatientListBy(filter, lastPatientId, limit = PAGE_SIZE)
             .also {
                 saveToLocal(it, filter)

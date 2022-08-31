@@ -7,12 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.droidconnyc22.model.Patient
 import com.example.droidconnyc22.tryOrNull
 
-
 // Droidcon 1
 class PatientAdapter(private val onBookmarkChecked: (patient: Patient) -> Unit) :
     PagingAdapter<Patient>(PatientDiffUtil()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
+    override fun viewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return PatientViewHolder.create(parent)
     }
 
