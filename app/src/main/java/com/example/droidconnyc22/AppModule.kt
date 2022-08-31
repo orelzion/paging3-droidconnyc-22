@@ -42,7 +42,8 @@ val patientDbModule = module {
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
-            .baseUrl("http://192.168.68.107:3000/")
+                // ip
+            .baseUrl(BuildConfig.LOCAL_IP)
             .addConverterFactory(Json.asConverterFactory(contentType))
             .client(okHttpClient)
             .build()
@@ -50,7 +51,7 @@ val patientDbModule = module {
 
     fun provideDB(application: Application): PatientDB {
         return Room
-            .databaseBuilder(application, PatientDB::class.java, "patient")
+            .inMemoryDatabaseBuilder(application, PatientDB::class.java)
             .setQueryCallback({ sqlQuery, bindArgs ->
                 Timber.d("SqlQuery: $sqlQuery\nbindArgs: $bindArgs")
             }, Executors.newSingleThreadExecutor())

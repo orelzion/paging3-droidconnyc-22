@@ -11,6 +11,7 @@ import com.example.droidconnyc22.model.db.PatientDao
 import com.example.droidconnyc22.model.db.PatientEntity
 import com.example.droidconnyc22.model.toPatientEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalPagingApi::class)
@@ -76,6 +77,9 @@ class PatientRemoteMediator(
             PatientFilter.Bookmarks -> fetchBookmarks(pageSize, pagingProperties)
             is PatientFilter.TypeFilter -> fetchFiltered(filter, pageSize, pagingProperties)
         }
+
+        // To show the effect
+        delay(3000)
 
         // Remove previous results if requested
         if (pagingProperties == null) {
