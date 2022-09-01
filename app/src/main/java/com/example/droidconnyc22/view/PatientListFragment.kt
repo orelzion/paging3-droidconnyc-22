@@ -63,12 +63,14 @@ class PatientListFragment : Fragment() {
 
     private fun onTabSelectedListener() = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab) {
+            // Droidcon 3
             patientViewModel.onTabSelected(tab.position)
         }
         override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
         override fun onTabReselected(tab: TabLayout.Tab?) = Unit
     }
 
+    // Droidcon 9
     private fun updateUiBy(uiState: PatientListUiState) {
         Timber.i("uiState has updated: $uiState")
 

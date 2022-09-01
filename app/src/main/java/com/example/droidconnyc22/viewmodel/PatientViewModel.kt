@@ -157,7 +157,6 @@ class PatientViewModel(
         }
     }
 
-    // Droidcon 3
     fun loadMore() {
         _viewState.update {
             PatientListUiState.LoadingMore(
