@@ -33,7 +33,7 @@ class PatientRepository(
         return result
     }
 
-    // Droidcon 9
+    // Droidcon 5
     @OptIn(ExperimentalPagingApi::class)
     fun createPager(filter: PatientFilter): Pager<Int, PatientEntity> {
 

@@ -5,28 +5,26 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import com.example.droidconnyc22.model.PatientFilter
-import com.example.droidconnyc22.model.db.PagingDao
-import com.example.droidconnyc22.model.db.PagingEntity
 import com.example.droidconnyc22.model.db.PatientDao
 import com.example.droidconnyc22.model.db.PatientEntity
 import com.example.droidconnyc22.model.toPatientEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 @OptIn(ExperimentalPagingApi::class)
 class PatientRemoteMediator(
     private val filter: PatientFilter,
     private val patientService: PatientService,
-    private val patientDao: PatientDao,
-    private val pagingDao: PagingDao
+    private val patientDao: PatientDao
 ) : RemoteMediator<Int, PatientEntity>() {
 
     /**
      * If we don't have anything loaded to this filter, launch a refresh load
      * Otherwise skip initial launch and load from the saved Room cache
      */
-    // Droidcon 11
+    // Droidcon 7
     override suspend fun initialize() = withContext(Dispatchers.IO) {
         if (patientDao.getFilterSize(filter.filterId) == 0) {
             InitializeAction.LAUNCH_INITIAL_REFRESH
@@ -40,33 +38,27 @@ class PatientRemoteMediator(
         state: PagingState<Int, PatientEntity>
     ): MediatorResult {
 
-        // Droidcon 12
-        val pagingProperties: PagingEntity? = when (loadType) {
+        Timber.d("loadType: ${loadType.name}")
+        Timber.d("last item: ${state.lastItemOrNull()}")
+
+        // Droidcon 8
+        val lastCursorId: String? = when (loadType) {
             LoadType.REFRESH -> null
             LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
             LoadType.APPEND -> {
-                val properties = withContext(Dispatchers.IO) {
-                    pagingDao.getFor(filter.filterId).firstOrNull()
-                }
-
-                if (properties?.hasReachLimit == true) {
-                    return MediatorResult.Success(endOfPaginationReached = true)
-                } else properties
+                state.lastItemOrNull()?.patientId ?: return MediatorResult.Success(endOfPaginationReached = false)
             }
         }
 
         return try {
-            // Droidcon 13
+            // Droidcon 9
             val reachedEnd = withContext(Dispatchers.IO) {
                 loadMore(
                     filter,
-                    pagingProperties,
+                    lastCursorId,
                     pageSize = state.config.pageSize
                 )
             }
-
-            // To increase the effect
-            delay(3000)
 
             MediatorResult.Success(endOfPaginationReached = reachedEnd.value)
         } catch (e: Exception) {
@@ -76,20 +68,22 @@ class PatientRemoteMediator(
 
     private suspend fun loadMore(
         filter: PatientFilter,
-        pagingProperties: PagingEntity?,
+        lastCursorId: String?,
         pageSize: Int
     ): ReachedEnd {
 
-        // Droidcon 14
+        // Droidcon 10
         val patients = when (filter) {
-            PatientFilter.All -> fetchAll(pageSize, pagingProperties)
-            PatientFilter.Bookmarks -> fetchBookmarks(pageSize, pagingProperties)
-            is PatientFilter.TypeFilter -> fetchFiltered(filter, pageSize, pagingProperties)
+            PatientFilter.All -> fetchAll(pageSize, lastCursorId)
+            PatientFilter.Bookmarks -> fetchBookmarks(pageSize, lastCursorId)
+            is PatientFilter.TypeFilter -> fetchFiltered(filter, pageSize, lastCursorId)
         }
 
+        // To increase the effect
+        delay(3000)
+
         // Remove previous results if requested
-        if (pagingProperties == null) {
-            pagingDao.clear(filter.filterId)
+        if (lastCursorId == null) {
             patientDao.removeAllFor(filter.filterId)
         }
 
@@ -100,44 +94,33 @@ class PatientRemoteMediator(
             }
         )
 
-        val reachedEnd = ReachedEnd(patients.size < pageSize)
-
-        // Update paging properties
-        pagingDao.createOrUpdate(
-            PagingEntity(
-                filterId = filter.filterId,
-                lastCursorId = patients.last().patientId,
-                hasReachLimit = reachedEnd.value
-            )
-        )
-
-        return reachedEnd
+        return ReachedEnd(patients.size < pageSize)
     }
 
     private suspend fun fetchFiltered(
         filter: PatientFilter.TypeFilter,
         pageSize: Int,
-        pagingProperties: PagingEntity?
+        lastCursorId: String?
     ) = patientService.getPatientsByType(
         filter.type,
         limit = pageSize,
-        lastPatientId = pagingProperties?.lastCursorId
+        lastPatientId = lastCursorId
     )
 
     private suspend fun fetchBookmarks(
         pageSize: Int,
-        pagingProperties: PagingEntity?
+        lastCursorId: String?
     ) = patientService.getBookmarkedPatients(
         limit = pageSize,
-        lastPatientId = pagingProperties?.lastCursorId
+        lastPatientId = lastCursorId
     )
 
     private suspend fun fetchAll(
         pageSize: Int,
-        pagingProperties: PagingEntity?
+        lastCursorId: String?
     ) = patientService.getAllPatients(
         limit = pageSize,
-        lastPatientId = pagingProperties?.lastCursorId
+        lastPatientId = lastCursorId
     )
 
 }

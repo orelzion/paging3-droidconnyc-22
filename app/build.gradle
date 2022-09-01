@@ -23,10 +23,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "LOCAL_IP", '"http://192.168.19.19:3000/"'
+            buildConfigField "String", "LOCAL_IP", '"http://10.55.67.170:3000/"'
         }
         debug {
-            buildConfigField "String", "LOCAL_IP", '"http://192.168.19.19:3000/"'
+            buildConfigField "String", "LOCAL_IP", '"http://10.55.67.170:3000/"'
         }
     }
     compileOptions {

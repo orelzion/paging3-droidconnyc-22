@@ -55,7 +55,7 @@ class PatientListFragment : Fragment() {
                 }
         }
 
-        // Droidcon 5
+        // Droidcon 2
         lifecycleScope.launchWhenStarted {
             patientViewModel
                 .patientListFlow
@@ -65,7 +65,7 @@ class PatientListFragment : Fragment() {
                 }
         }
 
-        // Droidcon 7
+        // Droidcon 11
         lifecycleScope.launchWhenStarted {
             patientAdapter
                 .loadStateFlow
@@ -76,10 +76,8 @@ class PatientListFragment : Fragment() {
         }
 
         with(viewBinding) {
-            // Droidcon 8
             patientList.adapter = patientAdapter.withLoadStateFooter(PatientLoadingAdapter())
 
-            // Droidcon 6
             refreshLayout.setOnRefreshListener { patientAdapter.refresh() }
             patientTabs.addOnTabSelectedListener(onTabSelectedListener())
         }

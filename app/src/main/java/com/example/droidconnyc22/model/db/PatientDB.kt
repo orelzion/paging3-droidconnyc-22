@@ -9,7 +9,7 @@ import com.example.droidconnyc22.model.Patient
 @TypeConverters(Convertors::class)
 abstract class PatientDB : RoomDatabase() {
     abstract val patientDao: PatientDao
-    abstract val pagingDao: PagingDao
+//    abstract val pagingDao: PagingDao
 }
 
 @Dao
@@ -24,7 +24,7 @@ interface PatientDao {
         """)
     fun getAllFor(filterId: String): List<PatientEntity>
 
-    // Droidcon 10
+    // Droidcon 6
     @Query("""
         SELECT * FROM patiententity
         WHERE :filterId = filterId
@@ -64,15 +64,15 @@ interface PatientDao {
     }
 }
 
-@Dao
-interface PagingDao {
-
-    @Insert(onConflict = REPLACE)
-    fun createOrUpdate(pagingEntity: PagingEntity)
-
-    @Query("SELECT * FROM pagingentity WHERE :filterId = filterId")
-    fun getFor(filterId: String): List<PagingEntity>
-
-    @Query("DELETE FROM pagingentity WHERE :filterId = filterId")
-    fun clear(filterId: String)
-}
+//@Dao
+//interface PagingDao {
+//
+//    @Insert(onConflict = REPLACE)
+//    fun createOrUpdate(pagingEntity: PagingEntity)
+//
+//    @Query("SELECT * FROM pagingentity WHERE :filterId = filterId")
+//    fun getFor(filterId: String): List<PagingEntity>
+//
+//    @Query("DELETE FROM pagingentity WHERE :filterId = filterId")
+//    fun clear(filterId: String)
+//}

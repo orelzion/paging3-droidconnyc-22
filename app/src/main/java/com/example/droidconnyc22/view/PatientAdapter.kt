@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.droidconnyc22.databinding.LoadingViewHolderBinding
 import com.example.droidconnyc22.model.db.PatientEntity
-import com.example.droidconnyc22.tryOrNull
 
 // Droidcon 1
 class PatientAdapter(private val onBookmarkChecked: (patient: PatientEntity) -> Unit) :
@@ -21,7 +20,7 @@ class PatientAdapter(private val onBookmarkChecked: (patient: PatientEntity) -> 
     }
 
     override fun onBindViewHolder(holder: PatientViewHolder, position: Int) {
-        val item = tryOrNull { getItem(position) }
+        val item = getItem(position)
         if (item != null) {
             holder.bind(item) {
                 onBookmarkChecked(item)
