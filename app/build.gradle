@@ -6,6 +6,9 @@ plugins {
     id 'kotlin-kapt'
 }
 
+def props = new Properties()
+file("../../build.properties").withInputStream { props.load(it) }
+
 android {
     compileSdk 32
 
@@ -23,10 +26,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "LOCAL_IP", '"http://192.168.19.19:3000/"'
+            buildConfigField "String", "LOCAL_IP", props.getProperty("server_url")
         }
         debug {
-            buildConfigField "String", "LOCAL_IP", '"http://192.168.19.19:3000/"'
+            buildConfigField "String", "LOCAL_IP", props.getProperty("server_url")
         }
     }
     compileOptions {
