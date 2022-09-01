@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.room.Room
 import com.example.droidconnyc22.model.PatientRepository
 import com.example.droidconnyc22.model.TabsRepository
-import com.example.droidconnyc22.model.db.PagingDao
 import com.example.droidconnyc22.model.db.PatientDB
 import com.example.droidconnyc22.model.db.PatientDao
 import com.example.droidconnyc22.model.db.PatientDbDataSource
@@ -59,7 +58,6 @@ val patientDbModule = module {
     }
 
     fun providePatientDao(patientDB: PatientDB): PatientDao = patientDB.patientDao
-    fun providePagingDao(patientDB: PatientDB): PagingDao = patientDB.pagingDao
 
     single {
         Interceptor { chain ->
@@ -72,7 +70,6 @@ val patientDbModule = module {
     // Provide DB
     singleOf(::provideDB)
     factoryOf(::providePatientDao)
-    factoryOf(::providePagingDao)
 
     // Provide network
     singleOf(::provideOkHttp)
@@ -87,8 +84,7 @@ val patientDbModule = module {
         PatientRemoteMediator(
             filter = params.get(),
             patientService = get(),
-            patientDao = get(),
-            pagingDao = get()
+            patientDao = get()
         )
     }
 

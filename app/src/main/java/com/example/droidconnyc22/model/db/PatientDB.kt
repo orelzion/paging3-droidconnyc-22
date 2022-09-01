@@ -9,7 +9,6 @@ import com.example.droidconnyc22.model.Patient
 @TypeConverters(Convertors::class)
 abstract class PatientDB : RoomDatabase() {
     abstract val patientDao: PatientDao
-    abstract val pagingDao: PagingDao
 }
 
 @Dao
@@ -61,17 +60,4 @@ interface PatientDao {
             update(updatedEntity)
         }
     }
-}
-
-@Dao
-interface PagingDao {
-
-    @Insert(onConflict = REPLACE)
-    fun createOrUpdate(pagingEntity: PagingEntity)
-
-    @Query("SELECT * FROM pagingentity WHERE :filterId = filterId")
-    fun getFor(filterId: String): List<PagingEntity>
-
-    @Query("DELETE FROM pagingentity WHERE :filterId = filterId")
-    fun clear(filterId: String)
 }
