@@ -13,6 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.droidconnyc22.BuildConfig
 import com.example.droidconnyc22.R
 import com.example.droidconnyc22.model.db.PatientEntity
 import kotlinx.datetime.Instant
@@ -31,7 +32,7 @@ fun PatientListItemView(
     ) {
         Column {
             AsyncImage(
-                model = patientEntity.photoUrl,
+                model = BuildConfig.LOCAL_IP + patientEntity.photoUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 fallback = painterResource(id = R.drawable.no_brain),

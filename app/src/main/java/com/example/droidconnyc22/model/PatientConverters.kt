@@ -1,6 +1,5 @@
 package com.example.droidconnyc22.model
 
-import com.example.droidconnyc22.BuildConfig
 import com.example.droidconnyc22.model.db.PatientEntity
 import com.example.droidconnyc22.model.remote.PatientRemote
 
@@ -12,7 +11,7 @@ fun PatientRemote.toPatientEntity(withFilterId: String): PatientEntity {
         name = remoteModel.name,
         bookmarkCount = remoteModel.bookmarkCount,
         isBookmarked = remoteModel.isBookmarked,
-        photoUrl = BuildConfig.LOCAL_IP + remoteModel.photoUrl,
+        photoUrl = remoteModel.photoUrl,
         filterId = withFilterId,
         updatedAt = remoteModel.updatedAt
     )
