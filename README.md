@@ -2,6 +2,14 @@
 
 My demo app for Droidcon NYC 2022
 
+This repo has 3 branches
+
+**main** - Shows my custom implementation of pagination
+
+**pagination** - Shows an example with the pagination library
+
+**compose** - Shows an example with compose and the pagination library
+
 Slides are available at my SpeakerDeck
 
 https://speakerdeck.com/orelzion/paging-3-library-in-real-life
