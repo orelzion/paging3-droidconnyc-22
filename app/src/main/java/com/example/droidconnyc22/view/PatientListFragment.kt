@@ -76,25 +76,12 @@ class PatientListFragment : Fragment() {
         }
 
         with(viewBinding) {
+            // Droidcon 12
             patientList.adapter = patientAdapter.withLoadStateFooter(PatientLoadingAdapter())
 
             refreshLayout.setOnRefreshListener { patientAdapter.refresh() }
             patientTabs.addOnTabSelectedListener(onTabSelectedListener())
         }
-
-//        with(viewBinding) {
-//            patientList.adapter = patientAdapter
-//            refreshLayout.setOnRefreshListener { patientViewModel.refreshList() }
-//            patientTabs.addOnTabSelectedListener(onTabSelectedListener())
-//
-//            patientList.addOnScrollListener(object: PagingScrollListener(patientList.layoutManager) {
-//                override fun loadMoreItems() {
-//                    patientViewModel.loadMore()
-//                }
-//                override val isLoading: Boolean
-//                    get() = patientViewModel.viewState.value.isLoadingMore()
-//            })
-//        }
     }
 
     private fun loadStateUpdated(loadStates: CombinedLoadStates) {
